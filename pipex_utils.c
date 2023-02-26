@@ -6,7 +6,7 @@
 /*   By: niboukha <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/20 09:43:33 by niboukha          #+#    #+#             */
-/*   Updated: 2023/02/20 10:32:24 by niboukha         ###   ########.fr       */
+/*   Updated: 2023/02/24 18:48:11 by niboukha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,12 @@ char	*check_cmd(t_pipex *_pipex, char *cmd)
 	int		i;
 
 	i = 0;
-	if (access(cmd, F_OK) == 0)
+	if (!cmd)
+	{
+		write(2, "error: command not found \n", 27);
+		exit(1);
+	}
+	if (ft_strchr(cmd, '/'))
 		return (cmd);
 	while (_pipex->path[i])
 	{
@@ -56,9 +61,10 @@ void	first_child(t_pipex *_pipex, char *av[], char *_env[])
 	}
 	_pipex->cmd_arg = ft_split(av[2], ' ');
 	_pipex->cmd = check_cmd(_pipex, _pipex->cmd_arg[0]);
-	if (!_pipex->cmd)
+	if ((access(_pipex->cmd, X_OK) == -1 && ft_strchr(_pipex->cmd, '/'))
+		|| !_pipex->cmd)
 	{
-		write(2, "no such file or directory \n", 28);
+		write(2, "error: no such file or directory \n", 35);
 		exit(1);
 	}
 	dup2(_pipex->_pipe[1], 1);
@@ -68,7 +74,7 @@ void	first_child(t_pipex *_pipex, char *av[], char *_env[])
 	close(_pipex->infile);
 	if (execve(_pipex->cmd, _pipex->cmd_arg, _env) == -1)
 	{
-		write(2, "command not found \n", 20);
+		write(2, "error: command not found \n", 27);
 		exit(1);
 	}
 }
@@ -83,9 +89,10 @@ void	second_child(t_pipex *_pipex, char *av[], char *_env[])
 	}
 	_pipex->cmd_arg = ft_split(av[3], ' ');
 	_pipex->cmd = check_cmd(_pipex, _pipex->cmd_arg[0]);
-	if (!_pipex->cmd)
+	if ((access(_pipex->cmd, X_OK) == -1 && ft_strchr(_pipex->cmd, '/'))
+		|| !_pipex->cmd)
 	{
-		write(2, "no such file or directory \n", 28);
+		write(2, "error: no such file or directory \n", 35);
 		exit(1);
 	}
 	dup2(_pipex->_pipe[0], 0);
@@ -95,7 +102,7 @@ void	second_child(t_pipex *_pipex, char *av[], char *_env[])
 	close(_pipex->outfile);
 	if (execve(_pipex->cmd, _pipex->cmd_arg, _env) == -1)
 	{
-		write(2, "command not found \n", 20);
+		write(2, "error: command not found \n", 27);
 		exit(1);
 	}
 }

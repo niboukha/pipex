@@ -6,7 +6,7 @@
 /*   By: niboukha <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/20 09:49:17 by niboukha          #+#    #+#             */
-/*   Updated: 2023/02/20 21:06:24 by niboukha         ###   ########.fr       */
+/*   Updated: 2023/02/24 18:48:17 by niboukha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,17 @@ char	*check_cmd(t_pipex *_pipex, char *cmd)
 	int		i;
 
 	i = 0;
-	if (access(cmd, F_OK) == 0)
+	if (!cmd)
+	{
+		write(2, "error: command not found \n", 27);
+		exit(1);
+	}
+	if (ft_strchr(cmd, '/'))
 		return (cmd);
 	while (_pipex->path[i])
 	{
 		cmd_tmp = ft_strjoin(_pipex->path[i], cmd);
-		if (access(cmd_tmp, F_OK) == 0)
+		if (access(cmd_tmp, X_OK) == 0)
 			return (cmd_tmp);
 		free(cmd_tmp);
 		i++;
@@ -50,14 +55,15 @@ void	exec_function(t_pipex *_pipex, char **av, char **_env)
 {
 	_pipex->cmd_arg = ft_split(av[_pipex->i], ' ');
 	_pipex->cmd = check_cmd(_pipex, _pipex->cmd_arg[0]);
-	if (!_pipex->cmd)
+	if ((access(_pipex->cmd, X_OK) == -1 && ft_strchr(_pipex->cmd, '/'))
+		|| !_pipex->cmd)
 	{
-		write(2, "no such file or directory1 \n", 29);
+		write(2, "error: no such file or directory \n", 35);
 		exit(1);
 	}
 	if (execve(_pipex->cmd, _pipex->cmd_arg, _env) == -1)
 	{
-		write(2, "command not found \n", 20);
+		write(2, "error: command not found \n", 27);
 		exit(1);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: niboukha <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 09:01:51 by niboukha          #+#    #+#             */
-/*   Updated: 2023/02/20 10:32:24 by niboukha         ###   ########.fr       */
+/*   Updated: 2023/02/22 10:16:11 by niboukha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,5 +47,6 @@ char	*check_cmd(t_pipex *_pipex, char *cmd);
 int		check_slash(char *path);
 void	first_child(t_pipex *_pipex, char *av[], char *_env[]);
 void	second_child(t_pipex *_pipex, char *av[], char *_env[]);
+char	*ft_strchr(const char *s, int c);
 
 #endif
